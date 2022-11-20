@@ -1,7 +1,7 @@
 -module(btree).
 -author("олег").
 
--export([initBT/0, isBT/1, insertBT/2, isEmptyBT/1, equalBT/2, testALL/0, filtrationTree/2, increaseBT/1]).
+-export([initBT/0, isBT/1, insertBT/2, isEmptyBT/1, equalBT/2, testALL/0, filtrationTree/2, increaseBT/1, from_list/1]).
 
 
 initBT() -> {}.
@@ -95,6 +95,12 @@ increaseBT(BT) ->
 isEmptyBT({}) -> true;
 isEmptyBT(_) -> false.
 
+from_list(List) ->
+  from_list(List, undefined).
+from_list([], Tree) ->
+  Tree;
+from_list([Item|Tail], Tree) ->
+  from_list(Tail, insertBT(Tree, Item)).
 
 % значение и высота одинаковы, продолжить рекурсивно проверять левое и правое поддерево
 equalBT({W, LT1, RT1, H}, {W, LT2, RT2, H}) -> equalBT(LT1, LT2) and equalBT(RT1, RT2);

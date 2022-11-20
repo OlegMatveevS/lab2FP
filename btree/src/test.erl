@@ -4,7 +4,7 @@
 %% API
 -export([]).
 -include_lib("eunit/include/eunit.hrl").
-
+-include_lib("proper/include/proper.hrl").
 
 init_test_() -> [
   ?_assert(btree:initBT() =:= {})
@@ -23,3 +23,16 @@ filtration_test_() -> [
 increase_test_() -> [
   ?_assert(btree:increaseBT(btree:insertBT(btree:insertBT(btree:initBT(), 10), 20)) =:= {11, {}, {21, {}, {}, 1}, 2})
 ].
+
+
+%%Prop tests
+prop_add_commutativity() ->
+  ?FORALL(
+    {L1, L2},
+    {list(integer()), list(integer())},
+    begin
+      Tree1 = btree:from_list(L1),
+      Tree2 = btree:from_list(L2),
+      btree:equalBT(btree:insertBT(Tree1, Tree2), btree:insertBT(Tree2, Tree1))
+    end
+  ).
