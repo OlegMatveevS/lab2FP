@@ -3,8 +3,8 @@
 
 %% API
 -export([]).
--include_lib("eunit/include/eunit.hrl").
 -include_lib("proper/include/proper.hrl").
+-include_lib("eunit/include/eunit.hrl").
 
 -define(PROPERTY_TESTS_AMOUNT, 10).
 
