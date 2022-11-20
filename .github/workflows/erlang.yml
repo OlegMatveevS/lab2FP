@@ -2,9 +2,9 @@ name: Erlang CI
 
 on:
   push:
-    branches: [ main ]
+    branches: [ master ]
   pull_request:
-    branches: [ main ]
+    branches: [ master ]
 
 jobs:
 
@@ -16,12 +16,12 @@ jobs:
       image: erlang:22.0.7
 
     steps:
-      - uses: actions/checkout@v2
-
-      - name: Compile
-        working-directory: ${{github.workspace}}/btree
-        run: rebar3 compile
-
-      - name: Run tests
-        working-directory: ${{github.workspace}}/btree
-        run: rebar3 do eunit
+    - uses: actions/checkout@v2
+      
+    - name: Compile
+      working-directory: ${{github.workspace}}/btree
+      run: rebar3 compile
+      
+    - name: Run tests
+      working-directory: ${{github.workspace}}/btree
+      run: rebar3 do eunit
