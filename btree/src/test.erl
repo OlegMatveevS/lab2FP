@@ -3,11 +3,10 @@
 
 %% API
 -export([]).
--include_lib("proper/include/proper.hrl").
 -include_lib("eunit/include/eunit.hrl").
+-include_lib("proper/include/proper.hrl").
 
--define(PROPERTY_TESTS_AMOUNT, 1000).
-get_property_test_result(Property) -> proper:quickcheck(Property, [{numtests, ?PROPERTY_TESTS_AMOUNT}]).
+-define(PROPERTY_TESTS_AMOUNT, 10).
 
 init_test_() -> [
   ?_assert(btree:initBT() =:= {})
@@ -27,6 +26,7 @@ increase_test_() -> [
   ?_assert(btree:increaseBT(btree:insertBT(btree:insertBT(btree:initBT(), 10), 20)) =:= {11, {}, {21, {}, {}, 1}, 2})
 ].
 
+get_property_test_result(Property) -> proper:quickcheck(Property, [{numtests, ?PROPERTY_TESTS_AMOUNT}]).
 
 %%Prop tests
 prop_add_commutativity() ->
