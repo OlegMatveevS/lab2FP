@@ -1,4 +1,4 @@
--module(test).
+-module(test_btree).
 -author("олег").
 
 %% API
@@ -36,7 +36,8 @@ prop_add_commutativity() ->
     begin
       Tree1 = btree:from_list(L1),
       Tree2 = btree:from_list(L2),
-      btree:equalBT(btree:insertBT(Tree1, Tree2), btree:insertBT(Tree2, Tree1))
+      btree:equalBT(btree:insertBT(Tree1, Tree2), btree:insertBT(Tree2, Tree1)),
+      io:format("Tree1: ~p~n", [Tree1])
     end
   ).
 
