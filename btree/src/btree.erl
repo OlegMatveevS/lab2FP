@@ -1,7 +1,7 @@
 -module(btree).
 -author("олег").
 
--export([initBT/0, isBT/1, insertBT/2, isEmptyBT/1, equalBT/2, testALL/0]).
+-export([initBT/0, isBT/1, insertBT/2, isEmptyBT/1, equalBT/2, testALL/0, filtrationTree/2, increaseBT/1]).
 
 
 initBT() -> {}.
