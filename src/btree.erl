@@ -1,11 +1,10 @@
-% Authors: Uwe Krause, Sean Pedersen
 -module(btree).
+-author("олег").
 
 -export([initBT/0, isBT/1, insertBT/2, isEmptyBT/1, equalBT/2, testALL/0]).
 
 
 initBT() -> {}.
-
 
 isBT(B) -> {_LMin, _RMax, _H, T} = reku(B), (T or isEmptyBT(B)).
 
@@ -119,5 +118,4 @@ testALL() ->
   io:format("X6 = ~p~n", [sumBT(X6)]),
   io:format("X6 = ~p~n", [increaseBT(X6)]),
   io:format("X6 = ~p~n", [filtrationTree(fun(T) -> case T of 20 -> false; _ -> true end end, X6)]).
-
 
