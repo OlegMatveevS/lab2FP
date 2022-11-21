@@ -1,5 +1,4 @@
 -module(btree).
--author("олег").
 
 -export([initBT/0, isBT/1, insert_bt/2, isEmpty_bt/1, equal_bt/2, test_all/0, filtration_tree/2, increase_bt/1, add_tree/2, list_to_tree/1, sum_bt/1,mulList/2, multiply_bt/2]).
 

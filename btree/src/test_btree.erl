@@ -1,5 +1,4 @@
 -module(test_btree).
--author("олег").
 
 %% API
 -export([]).
