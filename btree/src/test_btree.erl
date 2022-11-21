@@ -8,21 +8,21 @@
 -define(PROPERTY_TESTS_AMOUNT, 10).
 
 init_test_() -> [
-  ?_assert(btree:initBT() =:= {})
+  ?_assert(btree:init_bt() =:= {})
 ].
 
 add_test_() -> [
-  ?_assert(btree:insertBT(btree:initBT(), 10) =:= {10, {}, {}, 1}),
-  ?_assert((btree:insertBT(btree:insertBT(btree:initBT(), 10),35) =:= {10, {}, {35, {}, {}, 1}, 2}))
+  ?_assert(btree:insert_bt(btree:init_bt(), 10) =:= {10, {}, {}, 1}),
+  ?_assert((btree:insert_bt(btree:insert_bt(btree:init_bt(), 10),35) =:= {10, {}, {35, {}, {}, 1}, 2}))
 ].
 
 
 filtration_test_() -> [
-  ?_assert(btree:filtrationTree(fun(T) -> case T of 20 -> false; _ -> true end end, btree:insertBT(btree:insertBT(btree:initBT(), 10), 20)) =:= {10, {}, {}, 1})
+  ?_assert(btree:filtration_tree(fun(T) -> case T of 20 -> false; _ -> true end end, btree:insert_bt(btree:insert_bt(btree:init_bt(), 10), 20)) =:= {10, {}, {}, 1})
 ].
 
 increase_test_() -> [
-  ?_assert(btree:increaseBT(btree:insertBT(btree:insertBT(btree:initBT(), 10), 20)) =:= {11, {}, {21, {}, {}, 1}, 2})
+  ?_assert(btree:increase_bt(btree:insert_bt(btree:insert_bt(btree:init_bt(), 10), 20)) =:= {11, {}, {21, {}, {}, 1}, 2})
 ].
 
 
@@ -36,9 +36,9 @@ prop_mull_commutativity() ->
     {L1, L2},
     {list(integer()), list(integer())},
     begin
-      Tree1 = btree:listToTree(L1),
-      Tree2 = btree:listToTree(L2),
-      btree:equalBT(btree:multiplyBT(Tree1, Tree2),btree:multiplyBT(Tree2, Tree1))
+      Tree1 = btree:list_to_tree(L1),
+      Tree2 = btree:list_to_tree(L2),
+      btree:equal_bt(btree:multiply_bt(Tree1, Tree2),btree:multiply_bt(Tree2, Tree1))
     end
   ).
 
@@ -47,9 +47,9 @@ prop_add_commutativity() ->
     {L1, L2},
     {list(integer()), list(integer())},
     begin
-      Tree1 = btree:listToTree(L1),
-      Tree2 = btree:listToTree(L2),
-      btree:sumBT(btree:addTree(Tree1, Tree2)) =:= btree:sumBT(btree:addTree(Tree2, Tree1))
+      Tree1 = btree:list_to_tree(L1),
+      Tree2 = btree:list_to_tree(L2),
+      btree:sum_bt(btree:add_tree(Tree1, Tree2)) =:= btree:sum_bt(btree:add_tree(Tree2, Tree1))
     end
   ).
 
@@ -58,12 +58,12 @@ prop_associative_commutativity() ->
     {L1, L2, L3},
     {list(integer()), list(integer()), list(integer())},
     begin
-      HashSetA = btree:listToTree(L1),
-      HashSetB = btree:listToTree(L2),
-      HashSetC = btree:listToTree(L3),
-      HashSetRes1 = btree:multiplyBT(btree:multiplyBT(HashSetB, HashSetC), btree:multiplyBT(HashSetA, HashSetB)),
-      HashSetRes2 = btree:multiplyBT(btree:multiplyBT(HashSetA, HashSetB), btree:multiplyBT(HashSetB, HashSetC)),
-      btree:equalBT(HashSetRes1, HashSetRes2) == true
+      HashSetA = btree:list_to_tree(L1),
+      HashSetB = btree:list_to_tree(L2),
+      HashSetC = btree:list_to_tree(L3),
+      HashSetRes1 = btree:multiply_bt(btree:multiply_bt(HashSetB, HashSetC), btree:multiply_bt(HashSetA, HashSetB)),
+      HashSetRes2 = btree:multiply_bt(btree:multiply_bt(HashSetA, HashSetB), btree:multiply_bt(HashSetB, HashSetC)),
+      btree:equal_bt(HashSetRes1, HashSetRes2) == true
     end
   ).
 

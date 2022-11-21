@@ -69,8 +69,8 @@ insert_bt({W, LTree, RTree, H}, Ele) ->
 multiply_bt({}, {}) -> {};
 multiply_bt({}, Tree) -> Tree;
 multiply_bt(Tree, {}) -> Tree;
-multiply_bt({W1, _L1, _R1, _H1}, {W2, _L2, _R2, _H2}) -> lists:foldl(fun(X, Y) -> insert_bt(Y, X) end, {},
-  mul_list({W1, _L1, _R1, _H1}, {W2, _L2, _R2, _H2})).
+multiply_bt({W1, L1, R1, H1}, {W2, L2, R2, H2}) -> lists:foldl(fun(X, Y) -> insert_bt(Y, X) end, {},
+  mul_list({W1, L1, R1, H1}, {W2, L2, R2, H2})).
 
 mul_list({}, {}) -> [];
 mul_list(_,{}) -> [];
@@ -89,8 +89,8 @@ add_tree(MasterTree, {W, L, R, _H}) ->
 
 
 % обход дерева, вернуть новое дерево соответсвующее указанным значениям
-filtration_tree(Fun, {W, L, R, _H}) -> lists:foldl(fun(X, Y) -> insert_bt(Y, X) end, {},
-  filtration_tree_check(Fun, {W, L, R, _H})
+filtration_tree(Fun, {W, L, R, H}) -> lists:foldl(fun(X, Y) -> insert_bt(Y, X) end, {},
+  filtration_tree_check(Fun, {W, L, R, H})
 ).
 
 %вернуть список значений, которые удовлетворяют функции
