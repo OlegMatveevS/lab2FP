@@ -1,7 +1,7 @@
 -module(btree).
 -author("олег").
 
--export([initBT/0, isBT/1, insertBT/2, isEmptyBT/1, equalBT/2, testALL/0, filtrationTree/2, increaseBT/1, from_list/1]).
+-export([initBT/0, isBT/1, insertBT/2, isEmptyBT/1, equalBT/2, testALL/0, filtrationTree/2, increaseBT/1, addTree/2, listToTree/1,sumBT/1,mulList/2,multiplyBT/2]).
 
 
 initBT() -> {}.
@@ -65,6 +65,29 @@ insertBT({W, LTree, RTree, H}, Ele) ->
              end
   end.
 
+% перемножить значения деревьев друг на друга
+multiplyBT({}, {}) -> {};
+multiplyBT({}, Tree) -> Tree;
+multiplyBT(Tree, {}) -> Tree;
+multiplyBT({W1, _L1, _R1, _H1}, {W2, _L2, _R2, _H2}) -> lists:foldl(fun(X, Y) -> insertBT(Y, X) end, {},
+  mulList({W1, _L1, _R1, _H1}, {W2, _L2, _R2, _H2})).
+
+mulList({}, {}) -> [];
+mulList(_,{}) -> [];
+mulList({},_) -> [];
+mulList({W1, L1, R1, _H1}, {W2, L2, R2, _H2})-> [W1*W2] ++ mulList(L1,L2) ++ mulList(R1,R2).
+
+
+
+addTree({}, {}) -> {};
+addTree({}, Tree) -> Tree;
+addTree(Tree, {}) -> Tree;
+addTree(MasterTree, {W, L, R, _H}) ->
+  MasterTree1 = addTree(MasterTree, L),
+  MasterTree2 = insertBT(MasterTree1, W),
+  addTree(MasterTree2, R).
+
+
 % обход дерева, вернуть новое дерево соответсвующее указанным значениям
 filtrationTree(Fun, {W, L, R, _H}) -> lists:foldl(fun(X, Y) -> insertBT(Y, X) end, {},
   filtrationTreeCheck(Fun, {W, L, R, _H})
@@ -95,16 +118,11 @@ increaseBT(BT) ->
 isEmptyBT({}) -> true;
 isEmptyBT(_) -> false.
 
-from_list(List) ->
-  from_list(List, undefined).
-from_list([], Tree) ->
-  Tree;
-from_list([Item|Tail], Tree) ->
-  from_list(Tail, insertBT(Tree, Item)).
 
 % значение и высота одинаковы, продолжить рекурсивно проверять левое и правое поддерево
 equalBT({W, LT1, RT1, H}, {W, LT2, RT2, H}) -> equalBT(LT1, LT2) and equalBT(RT1, RT2);
 equalBT({}, {}) -> true;
+
 
 % Все остальные случаи не равны
 equalBT(_BT1, _BT2) -> false.
@@ -112,8 +130,10 @@ equalBT(_BT1, _BT2) -> false.
 my_max(A, B) when A > B -> A;
 my_max(_A, B) -> B.
 
-testALL() ->
+listToTree(List) -> lists:foldl(fun(X, Y) -> insertBT(Y, X) end, {}, List).
 
+
+testALL() ->
   X = btree:initBT(),
   X1 = btree:insertBT(X, 10),
   X2 = btree:insertBT(X1, 20),
@@ -121,6 +141,10 @@ testALL() ->
   X4 = btree:insertBT(X3, 40),
   X5 = btree:insertBT(X4, 50),
   X6 = btree:insertBT(X5, 5),
+  io:format("~p~n", [multiplyBT(X5, X6)]),
+  io:format("~p~n", [multiplyBT(X6, X5)]),
+  io:format("~p~n", [addTree(X1, X2)]),
+  io:format("~p~n", [addTree(X2, X1)]),
   io:format("X6 = ~p~n", [sumBT(X6)]),
   io:format("X6 = ~p~n", [increaseBT(X6)]),
   io:format("X6 = ~p~n", [filtrationTree(fun(T) -> case T of 20 -> false; _ -> true end end, X6)]).
