@@ -1,6 +1,6 @@
 -module(btree).
 
--export([init_bt/0, isBT/1, insert_bt/2, isempty_bt/1, equal_bt/2, test_all/0, filtration_tree/2, increase_bt/1, add_tree/2, list_to_tree/1, sum_bt/1, mul_list/2, multiply_bt/2]).
+-export([init_bt/0, isBT/1, insert_bt/2, isempty_bt/1, equal_bt/2, filtration_tree/2, increase_bt/1, add_tree/2, list_to_tree/1, sum_bt/1, mul_list/2, multiply_bt/2]).
 
 
 init_bt() -> {}.
