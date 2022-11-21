@@ -18,7 +18,7 @@ prop_add_commutativity() ->
     begin
       Tree1 = btree:from_list(L1),
       Tree2 = btree:from_list(L2),
-      btree:equalBT(btree:insertBT(Tree1, 1), btree:insertBT(Tree2, 1))
+      btree:equalBT(Tree1,Tree2)
     end
   ).
 
