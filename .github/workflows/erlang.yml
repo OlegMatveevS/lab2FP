@@ -6,17 +6,23 @@ on:
   pull_request:
     branches: [ master ]
 
+env:
+  ERL_AFLAGS: "-enable-feature all"
 jobs:
-
   build:
-
     runs-on: ubuntu-latest
-
     container:
-      image: erlang:22.0.7
-
+      image: erlang:25
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
+      
+    - name: Format
+      working-directory: ${{github.workspace}}/btree
+      run: rebar3 format
+
+    - name: Lint
+      working-directory: ${{github.workspace}}/btree
+      run: rebar3 lint
       
     - name: Compile
       working-directory: ${{github.workspace}}/btree
