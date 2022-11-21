@@ -72,6 +72,48 @@ insertBT({W, LTree, RTree, H}, Ele) ->
   end.
   ```
   
+  + __Функция удаления узла дерева__
+  ```
+deleteBT({W, LTree, RTree, H}, Ele) ->
+  case (Ele < W) of
+    true -> case (isEmptyBT(LTree)) of
+              true -> {W, LTree, RTree, H};
+              false -> {L_W, L_LT, L_RT, L_H} = deleteBT(LTree, Ele),
+                case (H > L_H) of
+                  true -> {W, {L_W, L_LT, L_RT, L_H}, RTree, H};
+                  false -> {W, {L_W, L_LT, L_RT, L_H}, RTree, H - 1}
+                end
+            end;
+
+    false -> case (isEmptyBT(RTree)) of
+               true -> {W, LTree, RTree, H};
+               false -> {R_W, R_LT, R_RT, R_H} = deleteBT(RTree, Ele),
+                 case (H > R_H) of
+                   true -> {W, LTree, {R_W, R_LT, R_RT, R_H}, H};
+                   false -> {W, LTree, {R_W, R_LT, R_RT, R_H}, H - 1}
+                 end
+             end
+  end.
+  
+  + __Функция поиска уровня узла по значению__
+  ```
+  % вернуть высоту узла если он равен значению элемента пройти лево и право
+findBT({W, LTree, RTree, H}, Ele) ->
+  case (Ele == W) of
+    true -> H;
+    false -> case (Ele < W) of
+               true -> case (isEmptyBT(LTree)) of
+                         true -> 0;
+                         false -> findBT(LTree, Ele)
+                       end;
+               false -> case (isEmptyBT(RTree)) of
+                          true -> 0;
+                          false -> findBT(RTree, Ele)
+                        end
+             end
+  end.
+  ```
+
   + __Функция сложения деревьев__
   ```
   addTree({}, {}) -> {};
