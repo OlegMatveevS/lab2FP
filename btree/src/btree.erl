@@ -1,11 +1,11 @@
 -module(btree).
 
--export([init_bt/0, isBT/1, insert_bt/2, isempty_bt/1, equal_bt/2, filtration_tree/2, increase_bt/1, add_tree/2, list_to_tree/1, sum_bt/1, mul_list/2, multiply_bt/2]).
+-export([init_bt/0, is_bt/1, insert_bt/2, isempty_bt/1, equal_bt/2, filtration_tree/2, increase_bt/1, add_tree/2, list_to_tree/1, sum_bt/1, mul_list/2, multiply_bt/2]).
 
 
 init_bt() -> {}.
 
-isBT(B) -> {_LMin, _RMax, _H, T} = reku(B), (T or isempty_bt(B)).
+is_bt(B) -> {_LMin, _RMax, _H, T} = reku(B), (T or isempty_bt(B)).
 
 % Лист
 reku({W, {}, {}, H}) -> {W, W, H, is_number(W) and is_number(H) and (H == 1)};
@@ -21,7 +21,8 @@ reku({W, L, R, H}) -> {LMin, _RMax, Ulh, Ulg} = reku(L),
   {_LMin, UrRMax, Urh, Urg} = reku(R),
   {LMin, UrRMax, H,
     % проверка достоверности
-    (Ulg and Urg and is_number(W) and is_number(H) and (W > LMin) and (W =< UrRMax) and (my_max(Ulh, Urh) + 1 == H))
+    (Ulg and Urg and is_number(W) and is_number(H) and (W > LMin) and (W =< UrRMax)
+      and (my_max(Ulh, Urh) + 1 == H))
   };
 
 % Все остальное не является BTree
