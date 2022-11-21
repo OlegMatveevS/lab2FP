@@ -23,4 +23,5 @@ prop_add_commutativity() ->
   ).
 
 add_commutative_test() ->
+  Property = prop_add_commutativity(),
   ?assert(get_property_test_result(Property)).
