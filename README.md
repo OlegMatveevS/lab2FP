@@ -37,125 +37,206 @@ __Лабораторная работа №1__
     Требуется использовать идиоматичный для технологии стиль программирования.
 
 + __Функция добавления узла дерева__
-```
-insertBT({W, LTree, RTree, H}, Ele) ->
-  case (Ele < W) of
+``` erlang
+insert_bt({Key, LTree, RTree, Height}, Element) -> case (Element < Key) of
     % Ссылка установлена:
-    true -> case (isEmptyBT(LTree)) of
+    true -> case (isempty_bt(LTree)) of
               % Левый слот свободен, поместите сюда новый лист
               % Если что-то висит с другой стороны, высота остается прежней
-              true when (H > 1) -> {W, {Ele, {}, {}, 1}, RTree, H};
+              true when (Height > 1) -> {Key, {Element, {}, {}, 1}, RTree, Height};
               %H равно 1 (т.е. лист), поэтому высота увеличивается на 1
-              true -> {W, {Ele, {}, {}, 1}, RTree, H + 1};
+              true -> {Key, {Element, {}, {}, 1}, RTree, Height + 1};
 
               % левый слот не свободен, переместите элемент ниже и дождитесь высоты следующего дерева
-              false -> {L_W, L_LT, L_RT, L_H} = insertBT(LTree, Ele),
-                case (H > L_H) of
+              false -> {NextKey, LeftNext, RightNext, HeightNext} = insert_bt(LTree, Element),
+                case (Height > HeightNext) of
                   % Если на другой стороне есть более длинная ветвь, H остается нетронутой
-                  true -> {W, {L_W, L_LT, L_RT, L_H}, RTree, H};
+                  true -> {Key, {NextKey, LeftNext, RightNext, HeightNext}, RTree, Height};
                   % левое поддерево стало глубже, высоту нужно увеличить на 1
-                  false -> {W, {L_W, L_LT, L_RT, L_H}, RTree, H + 1}
+                  false -> {Key, {NextKey, LeftNext, RightNext, HeightNext}, RTree, Height + 1}
                 end
             end;
 
     % Установлен справа:
-    false -> case (isEmptyBT(RTree)) of
-               true when (H > 1) -> {W, LTree, {Ele, {}, {}, 1}, H};
-               true -> {W, LTree, {Ele, {}, {}, 1}, H + 1};
+    false -> case (isempty_bt(RTree)) of
+               true when (Height > 1) -> {Key, LTree, {Element, {}, {}, 1}, Height};
+               true -> {Key, LTree, {Element, {}, {}, 1}, Height + 1};
 
-               false -> {R_W, R_LT, R_RT, R_H} = insertBT(RTree, Ele),
-                 case (H > R_H) of
-                   true -> {W, LTree, {R_W, R_LT, R_RT, R_H}, H};
-                   false -> {W, LTree, {R_W, R_LT, R_RT, R_H}, H + 1}
+               false -> {RightNextKey, RightRightNext,
+                 LeftRightNext, HeightRight} = insert_bt(RTree, Element),
+                 case (Height > HeightRight) of
+                   true -> {Key, LTree,
+                     {RightNextKey, RightRightNext, LeftRightNext, HeightRight}, Height};
+                   false -> {Key, LTree,
+                     {RightNextKey, RightRightNext, LeftRightNext, HeightRight}, Height + 1}
                  end
              end
   end.
   ```
   
   + __Функция удаления узла дерева__
-  ```
-deleteBT({W, LTree, RTree, H}, Ele) ->
-  case (Ele < W) of
-    true -> case (isEmptyBT(LTree)) of
-              true -> {W, LTree, RTree, H};
-              false -> {L_W, L_LT, L_RT, L_H} = deleteBT(LTree, Ele),
-                case (H > L_H) of
-                  true -> {W, {L_W, L_LT, L_RT, L_H}, RTree, H};
-                  false -> {W, {L_W, L_LT, L_RT, L_H}, RTree, H - 1}
+  ``` erlang
+remove_bt({Key, LTree, RTree, Height}, Element) -> case (Element < Key) of
+    true -> case (isempty_bt(LTree)) of
+              true -> {Key, LTree, RTree, Height};
+              false -> {NextKey, LeftNext, RightNext, HeightNext} = remove_bt(LTree, Element),
+                case (Height > HeightNext) of
+                  true -> {Key, {NextKey, LeftNext, RightNext, HeightNext}, RTree, Height};
+                  false -> {Key, {NextKey, LeftNext, RightNext, HeightNext}, RTree, Height - 1}
                 end
             end;
 
-    false -> case (isEmptyBT(RTree)) of
-               true -> {W, LTree, RTree, H};
-               false -> {R_W, R_LT, R_RT, R_H} = deleteBT(RTree, Ele),
-                 case (H > R_H) of
-                   true -> {W, LTree, {R_W, R_LT, R_RT, R_H}, H};
-                   false -> {W, LTree, {R_W, R_LT, R_RT, R_H}, H - 1}
+    false -> case (isempty_bt(RTree)) of
+               true -> {Key, LTree, RTree, Height};
+               false -> {RightNextKey, RightRightNext,
+                 LeftRightNext, HeightRight} = remove_bt(RTree, Element),
+                 case (Height > HeightRight) of
+                   true -> {Key, LTree,
+                     {RightNextKey, RightRightNext, LeftRightNext, HeightRight}, Height};
+                   false -> {Key, LTree,
+                     {RightNextKey, RightRightNext, LeftRightNext, HeightRight}, Height - 1}
                  end
              end
   end.
   ```
+   + __Фильтрация__
+  ```erlang
+  btree_filter(Fun, {W, L, R, H}) -> filter(Fun, {W, L, R, H}).
+filter(Fun, {W, L, R, _H}) ->
+  Node3 = case Fun(W) of
+            true -> insert_bt({}, W);
+            false -> {}
+          end,
+  filter(Fun, L, Node3),
+  filter(Fun, R, Node3).
+filter(_, {}, {Key, L, R, H}) -> {Key, L, R, H};
+filter(Fun, {Key, L, R, _H}, {Key2, L2, R2, H2}) ->
+  Node2 = filter(Fun, L, {Key2, L2, R2, H2}),
+  Node3 = case Fun(Key) of
+            true -> insert_bt(Node2, Key);
+            false -> Node2
+          end,
+  filter(Fun, R, Node3).
+
+  ```
   
-  + __Функция поиска уровня узла по значению__
-  ```
-  % вернуть высоту узла если он равен значению элемента
-findBT({W, LTree, RTree, H}, Ele) ->
-  case (Ele == W) of
-    true -> H;
-    false -> case (Ele < W) of
-               true -> case (isEmptyBT(LTree)) of
-                         true -> 0;
-                         false -> findBT(LTree, Ele)
-                       end;
-               false -> case (isEmptyBT(RTree)) of
-                          true -> 0;
-                          false -> findBT(RTree, Ele)
-                        end
-             end
-  end.
+  
+  + __Свертки(левая и правая)__
+  ```erlang
+  foldl(_, Acc, {}) -> Acc;
+foldl(Fun, Acc, {Key, L, R, _H}) ->
+  Acc0 = foldl(Fun, Acc, L),
+  Acc1 = Fun(Key, Acc0),
+  foldl(Fun, Acc1, R).
+
+foldr(_, Acc, {}) -> Acc;
+foldr(Fun, Acc, {Key, L, R, _H}) ->
+  Acc0 = foldr(Fun, Acc, R),
+  Acc1 = Fun(Key, Acc0),
+  foldr(Fun, Acc1, L).
   ```
 
 
-  + __Функция сложения деревьев__
+  + __отображение (map)__
+  ```erlang
+  btree_map(Fun, {Key, L, R, H}) ->
+  map(Fun, {Key, L, R, H}).
+map(Fun, {Key, L, R, _H}) ->
+  Node3 = insert_bt({}, Fun(Key)),
+  map(Fun, L, Node3),
+  map(Fun, R, Node3).
+map(_, {}, {W, L, R, H}) -> {W, L, R, H};
+map(Fun, {Key, L, R, _H}, {Key2, L2, R2, H2}) ->
+  Node2 = map(Fun, L, {Key2, L2, R2, H2}),
+  Node3 = insert_bt(Node2, Fun(Key)),
+  map(Fun, R, Node3).
+
   ```
-  addTree({}, {}) -> {};
-  addTree({}, Tree) -> Tree;
-  addTree(Tree, {}) -> Tree;
-  addTree(MasterTree, {W, L, R, _H}) ->
-  MasterTree1 = addTree(MasterTree, L),
-  MasterTree2 = insertBT(MasterTree1, W),
-  addTree(MasterTree2, R).
+  
+   + __Добавление деревьев__
+  ```erlang
+  add_tree({}, {}) -> {};
+add_tree({}, Tree) -> Tree;
+add_tree(Tree, {}) -> Tree;
+add_tree(MasterTree, {W, L, R, _H}) ->
+  MasterTree1 = add_tree(MasterTree, L),
+  MasterTree2 = insert_bt(MasterTree1, W),
+  add_tree(MasterTree2, R).
+
   ```
-  + __Функция фильтрации элементов по функции__
+  
+   + __Слияние деревьев(складывать значения по уровню дерева)__
+  ```erlang
+  merge({}, {}) -> {};
+merge({}, Tree) -> Tree;
+merge(Tree, {}) -> Tree;
+merge({Key1, L1, R1, H1}, {Key2, L2, R2, H2}) -> lists:foldl(fun(X, Y) -> insert_bt(Y, X) end, {},
+  merge_list({Key1, L1, R1, H1}, {Key2, L2, R2, H2})).
+
+merge_list({}, {}) -> [];
+merge_list(_, {}) -> [];
+merge_list({}, _) -> [];
+merge_list({Key1, L1, R1, _H1}, {Key2, L2, R2, _H2}) ->
+  [Key1 + Key2] ++ merge_list(L1, L2) ++ merge_list(R1, R2).
+
   ```
-  filtrationTree(Fun, {W, L, R, _H}) -> lists:foldl(fun(X, Y) -> insertBT(Y, X) end, {},
-    filtrationTreeCheck(Fun, {W, L, R, _H})
+  
+  + __Property-based тестирование__
+  ```erlang
+  get_property_test_result(Property) -> proper:quickcheck(Property, [{numtests, ?PROPERTY_TESTS_AMOUNT}]).
+
+%%Prop tests
+
+prop_merge_commutativity() ->
+  ?FORALL(
+    {L1, L2},
+    {list(integer()), list(integer())},
+    begin
+      Tree1 = btree:list_to_tree(L1),
+      Tree2 = btree:list_to_tree(L2),
+      btree:equal_bt(btree:merge(Tree1, Tree2),btree:merge(Tree2, Tree1))
+    end
   ).
 
-  %вернуть список значений, которые удовлетворяют функции
-  filtrationTreeCheck(_, ({})) -> [];
-  filtrationTreeCheck(Fun, {W, L, R, _H}) ->
-    case (Fun(W)) of
-     true -> [W] ++ filtrationTreeCheck(Fun, L) ++ filtrationTreeCheck(Fun, R);
-     false -> filtrationTreeCheck(Fun, L), filtrationTreeCheck(Fun, R)
-    end.
+prop_add_commutativity() ->
+  ?FORALL(
+    {L1, L2},
+    {list(integer()), list(integer())},
+    begin
+      Tree1 = btree:list_to_tree(L1),
+      Tree2 = btree:list_to_tree(L2),
+      btree:sum_bt(btree:add_tree(Tree1, Tree2)) =:= btree:sum_bt(btree:add_tree(Tree2, Tree1))
+    end
+  ).
+
+prop_associative_commutativity() ->
+  ?FORALL(
+    {L1, L2},
+    {list(integer()), list(integer())},
+    begin
+      A = btree:list_to_tree(L1),
+      B = btree:list_to_tree(L2),
+      C = btree:list_to_tree([5,1,2,3,5,2,6,2,3,6,2,1,6,8]),
+      btree:equal_bt(btree:merge(C,btree:merge(A, B)),btree:merge(B,btree:merge(A, C)))
+    end
+  ).
+
+add_commutative_test() ->
+  Property = prop_add_commutativity(),
+  ?assert(get_property_test_result(Property)).
+
+merge_commutative_test() ->
+  Property = prop_merge_commutativity(),
+  ?assert(get_property_test_result(Property)).
+
+associative_commutative_test() ->
+  Property = prop_associative_commutativity(),
+  ?assert(get_property_test_result(Property)).
+
+
   ```
   
-  + __Функции для работы со списком, вывода суммы и операция увеличения элементов__
-  ```
-  % Сохранение всех значений списка в дерева
-  listToTree(List) -> lists:foldl(fun(X, Y) -> insertBT(Y, X) end, {}, List).
   
-  % Сохранение всех значений дерева в список
-  treeToList({}) -> [];
-  treeToList({W, L, R, _H}) -> ([W] ++ treeToList(L) ++ treeToList(R)).
-
-  % сумма всех элементов дерева используя foldl
-  sumBT(BT) -> lists:foldl(fun(X, Y) -> X + Y end, 0, treeToList(BT)).
-
-  % увеличение всех элементов дерева
-  increaseBT(BT) ->
-  lists:foldl(fun(X, Y) -> insertBT(Y, X) end, {}, lists:map(fun(X) -> X + 1 end, treeToList(BT))).
-  ```
-
+  
+ 
 
