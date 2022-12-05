@@ -11,17 +11,20 @@ is_bt(B) -> {_LMin, _RMax, _H, T} = leaf(B), (T or isempty_bt(B)).
 leaf({Key, {}, {}, Height}) -> {Key, Key, Height, is_number(Key) and is_number(Height) and (Height == 1)};
 
 leaf({Key, Left, {}, H}) -> {ULMin, _URMax, Right, Height} = leaf(Left),
-  {ULMin, Key, H, (Height and is_number(Key) and is_number(H) and (Key > ULMin) and (Right + 1 == H))};
+  {ULMin, Key, H, (Height and is_number(Key)
+    and is_number(H) and (Key > ULMin) and (Right + 1 == H))};
 
 leaf({Key, {}, Right, Height}) -> {_ULMin, URMax, Left, Height} = leaf(Right),
-  {Key, URMax, Height, (Height and is_number(Key) and is_number(Height) and (Key =< URMax) and (Left + 1 == Height))};
+  {Key, URMax, Height, (Height and is_number(Key)
+    and is_number(Height) and (Key =< URMax) and (Left + 1 == Height))};
 
 
 leaf({Key, Left, Right, Height}) -> {LMin, _RMax, Left, URigh} = leaf(Left),
   {_LMin, UrRMax, URight, Height} = leaf(Right),
   {LMin, UrRMax, Height,
     % проверка достоверности
-    (URigh and Height and is_number(Key) and is_number(Height) and (Key > LMin) and (Key =< UrRMax)
+    (URigh and Height and is_number(Key)
+      and is_number(Height) and (Key > LMin) and (Key =< UrRMax)
       and (my_max(Left, URight) + 1 == Height))
   };
 
@@ -57,39 +60,42 @@ insert_bt({Key, LTree, RTree, Height}, Element) ->
                true when (Height > 1) -> {Key, LTree, {Element, {}, {}, 1}, Height};
                true -> {Key, LTree, {Element, {}, {}, 1}, Height + 1};
 
-               false -> {RightNextKey, RightRightNext, LeftRightNext, HeightRight} = insert_bt(RTree, Element),
+               false -> {RightNextKey, RightRightNext,
+                 LeftRightNext, HeightRight} = insert_bt(RTree, Element),
                  case (Height > HeightRight) of
-                   true -> {Key, LTree, {RightNextKey, RightRightNext, LeftRightNext, HeightRight}, Height};
-                   false -> {Key, LTree, {RightNextKey, RightRightNext, LeftRightNext, HeightRight}, Height + 1}
+                   true -> {Key, LTree,
+                     {RightNextKey, RightRightNext, LeftRightNext, HeightRight}, Height};
+                   false -> {Key, LTree,
+                     {RightNextKey, RightRightNext, LeftRightNext, HeightRight}, Height + 1}
                  end
              end
   end.
 
 foldl(_, Acc, {}) -> Acc;
-foldl(Fun, Acc, {W, L, R, _H}) ->
+foldl(Fun, Acc, {Key, L, R, _H}) ->
   Acc0 = foldl(Fun, Acc, L),
-  Acc1 = Fun(W, Acc0),
+  Acc1 = Fun(Key, Acc0),
   foldl(Fun, Acc1, R).
 
 foldr(_, Acc, {}) -> Acc;
-foldr(Fun, Acc, {W, L, R, _H}) ->
+foldr(Fun, Acc, {Key, L, R, _H}) ->
   Acc0 = foldr(Fun, Acc, R),
-  Acc1 = Fun(W, Acc0),
+  Acc1 = Fun(Key, Acc0),
   foldr(Fun, Acc1, L).
 
-btree_map(Fun, {W, L, R, _H}) ->
-  map(Fun, {W, L, R, _H}).
-map(Fun, {W, L, R, _H}) ->
-  Node3 = insert_bt({}, Fun(W)),
+btree_map(Fun, {Key, L, R, H}) ->
+  map(Fun, {Key, L, R, H}).
+map(Fun, {Key, L, R, _H}) ->
+  Node3 = insert_bt({}, Fun(Key)),
   map(Fun, L, Node3),
   map(Fun, R, Node3).
-map(_, {}, {W, L, R, _H}) -> {W, L, R, _H};
-map(Fun, {W, L, R, _H}, {W2, L2, R2, _H2}) ->
-  Node2 = map(Fun, L, {W2, L2, R2, _H2}),
-  Node3 = insert_bt(Node2, Fun(W)),
+map(_, {}, {W, L, R, H}) -> {W, L, R, H};
+map(Fun, {Key, L, R, _H}, {Key2, L2, R2, H2}) ->
+  Node2 = map(Fun, L, {Key2, L2, R2, H2}),
+  Node3 = insert_bt(Node2, Fun(Key)),
   map(Fun, R, Node3).
 
-btree_filter(Fun, {W, L, R, _H}) -> filter(Fun, {W, L, R, _H}).
+btree_filter(Fun, {W, L, R, H}) -> filter(Fun, {W, L, R, H}).
 filter(Fun, {W, L, R, _H}) ->
   Node3 = case Fun(W) of
             true -> insert_bt({}, W);
@@ -97,11 +103,11 @@ filter(Fun, {W, L, R, _H}) ->
           end,
   filter(Fun, L, Node3),
   filter(Fun, R, Node3).
-filter(_, {}, {W, L, R, _H}) -> {W, L, R, _H};
-filter(Fun, {W, L, R, _H}, {W2, L2, R2, _H2}) ->
-  Node2 = filter(Fun, L, {W2, L2, R2, _H2}),
-  Node3 = case Fun(W) of
-            true -> insert_bt(Node2, W);
+filter(_, {}, {Key, L, R, H}) -> {Key, L, R, H};
+filter(Fun, {Key, L, R, _H}, {Key2, L2, R2, H2}) ->
+  Node2 = filter(Fun, L, {Key2, L2, R2, H2}),
+  Node3 = case Fun(Key) of
+            true -> insert_bt(Node2, Key);
             false -> Node2
           end,
   filter(Fun, R, Node3).
@@ -109,13 +115,14 @@ filter(Fun, {W, L, R, _H}, {W2, L2, R2, _H2}) ->
 merge({}, {}) -> {};
 merge({}, Tree) -> Tree;
 merge(Tree, {}) -> Tree;
-merge({W1, L1, R1, H1}, {W2, L2, R2, H2}) -> lists:foldl(fun(X, Y) -> insert_bt(Y, X) end, {},
-  merge_list({W1, L1, R1, H1}, {W2, L2, R2, H2})).
+merge({Key1, L1, R1, H1}, {Key2, L2, R2, H2}) -> lists:foldl(fun(X, Y) -> insert_bt(Y, X) end, {},
+  merge_list({Key1, L1, R1, H1}, {Key2, L2, R2, H2})).
 
 merge_list({}, {}) -> [];
 merge_list(_, {}) -> [];
 merge_list({}, _) -> [];
-merge_list({W1, L1, R1, _H1}, {W2, L2, R2, _H2}) -> [W1 + W2] ++ merge_list(L1, L2) ++ merge_list(R1, R2).
+merge_list({Key1, L1, R1, _H1}, {Key2, L2, R2, _H2}) ->
+  [Key1 + Key2] ++ merge_list(L1, L2) ++ merge_list(R1, R2).
 
 add_tree({}, {}) -> {};
 add_tree({}, Tree) -> Tree;
@@ -134,7 +141,8 @@ sum_bt(BT) -> lists:foldl(fun(X, Y) -> X + Y end, 0, tree_to_list(BT)).
 
 % increase all elements in tree use map return new tree
 increase_bt(BT) ->
-  lists:foldl(fun(X, Y) -> insert_bt(Y, X) end, {}, lists:map(fun(X) -> X + 1 end, tree_to_list(BT))).
+  lists:foldl(fun(X, Y) -> insert_bt(Y, X) end, {},
+    lists:map(fun(X) -> X + 1 end, tree_to_list(BT))).
 
 % Проверяет наличие пустого дерева
 isempty_bt({}) -> true;
@@ -143,7 +151,8 @@ isempty_bt(_) -> false.
 equal_bt({}, {}) -> true;
 equal_bt({}, _) -> false;
 equal_bt(_, {}) -> false;
-equal_bt({Key, _Left, _Right, _Height}, {Key2, _Left2, _Right2, _Height2}) when Key /= Key2 -> false;
+equal_bt({Key, _Left, _Right, _Height}, {Key2, _Left2, _Right2, _Height2})
+  when Key /= Key2 -> false;
 equal_bt({_Key, Left, Right, _Height}, {_Key2, Left2, Right2, _Height2}) ->
   equal_bt(Left, Left2) and equal_bt(Right, Right2).
 
