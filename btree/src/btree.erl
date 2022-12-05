@@ -84,8 +84,7 @@ remove_bt({Key, LTree, RTree, Height}, Element) -> case (Element < Key) of
 
     false -> case (isempty_bt(RTree)) of
                true -> {Key, LTree, RTree, Height};
-               false -> {RightNextKey, RightRightNext,
-                 LeftRightNext, HeightRight} = remove_bt(RTree, Element),
+               false -> {RightNextKey, RightRightNext, LeftRightNext, HeightRight} = remove_bt(RTree, Element),
                  case (Height > HeightRight) of
                    true -> {Key, LTree,
                      {RightNextKey, RightRightNext, LeftRightNext, HeightRight}, Height};
