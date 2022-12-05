@@ -8,7 +8,8 @@ init_bt() -> {}.
 is_bt(B) -> {_LMin, _RMax, _H, T} = leaf(B), (T or isempty_bt(B)).
 
 % Лист
-leaf({Key, {}, {}, Height}) -> {Key, Key, Height, is_number(Key) and is_number(Height) and (Height == 1)};
+leaf({Key, {}, {}, Height}) -> {Key, Key, Height, is_number(Key)
+  and is_number(Height) and (Height == 1)};
 
 leaf({Key, Left, {}, H}) -> {ULMin, _URMax, Right, Height} = leaf(Left),
   {ULMin, Key, H, (Height and is_number(Key)
@@ -35,8 +36,7 @@ leaf(_) -> {a, a, a, false}.
 insert_bt({}, E) -> {E, {}, {}, 1};
 
 % Вставить в дерево
-insert_bt({Key, LTree, RTree, Height}, Element) ->
-  case (Element < Key) of
+insert_bt({Key, LTree, RTree, Height}, Element) -> case (Element < Key) of
     % Ссылка установлена:
     true -> case (isempty_bt(LTree)) of
               % Левый слот свободен, поместите сюда новый лист
