@@ -1,6 +1,6 @@
 -module(btree).
 
--export([init_bt/0, is_bt/1, insert_bt/2, isempty_bt/1, equal_bt/2, increase_bt/1, add_tree/2, list_to_tree/1, sum_bt/1, merge_list/2, foldl/3, foldr/3, btree_map/2, map/2, filter/2, btree_filter/2, merge/2]).
+-export([init_bt/0, is_bt/1, insert_bt/2, isempty_bt/1, equal_bt/2, increase_bt/1, add_tree/2, list_to_tree/1, sum_bt/1, merge_list/2, foldl/3, foldr/3, btree_map/2, map/2, filter/2, btree_filter/2, merge/2, remove_bt/2]).
 
 
 init_bt() -> {}.
@@ -70,6 +70,31 @@ insert_bt({Key, LTree, RTree, Height}, Element) -> case (Element < Key) of
                  end
              end
   end.
+
+% Remove element from tree
+remove_bt({Key, LTree, RTree, Height}, Element) -> case (Element < Key) of
+    true -> case (isempty_bt(LTree)) of
+              true -> {Key, LTree, RTree, Height};
+              false -> {NextKey, LeftNext, RightNext, HeightNext} = remove_bt(LTree, Element),
+                case (Height > HeightNext) of
+                  true -> {Key, {NextKey, LeftNext, RightNext, HeightNext}, RTree, Height};
+                  false -> {Key, {NextKey, LeftNext, RightNext, HeightNext}, RTree, Height - 1}
+                end
+            end;
+
+    false -> case (isempty_bt(RTree)) of
+               true -> {Key, LTree, RTree, Height};
+               false -> {RightNextKey, RightRightNext,
+                 LeftRightNext, HeightRight} = remove_bt(RTree, Element),
+                 case (Height > HeightRight) of
+                   true -> {Key, LTree,
+                     {RightNextKey, RightRightNext, LeftRightNext, HeightRight}, Height};
+                   false -> {Key, LTree,
+                     {RightNextKey, RightRightNext, LeftRightNext, HeightRight}, Height - 1}
+                 end
+             end
+  end.
+
 
 foldl(_, Acc, {}) -> Acc;
 foldl(Fun, Acc, {Key, L, R, _H}) ->
