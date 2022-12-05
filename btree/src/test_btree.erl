@@ -1,7 +1,6 @@
 -module(test_btree).
 
 %% API
--export([]).
 -include_lib("proper/include/proper.hrl").
 -include_lib("eunit/include/eunit.hrl").
 
@@ -11,14 +10,46 @@ init_test_() -> [
   ?_assert(btree:init_bt() =:= {})
 ].
 
+foldl_test_() -> [
+  ?_assert(
+    btree:foldl(
+      fun(X, Res) -> X + Res end, 0, btree:list_to_tree([1,2])
+    ) =:= 3
+  )
+].
+
+foldr_test_() -> [
+  ?_assert(
+    btree:foldr(
+      fun(X, Res) -> X - Res*2 end, 0, btree:list_to_tree([1,2])
+    ) =:= -3)
+].
+
+map_test_() -> [
+  ?_assert(
+    btree:btree_map(
+      fun(X) -> X*2 end, btree:list_to_tree([1,2])
+    ) =:= btree:list_to_tree([2,4])
+  )
+].
+
+merge_test_() -> [
+  ?_assert(
+    btree:merge(btree:list_to_tree([2,4]),btree:list_to_tree([2,4])) =:= btree:list_to_tree([4,8])
+  )
+].
+
+filter_test_() -> [
+  ?_assert(
+    btree:btree_filter(
+      fun(X) -> case X of 2 -> false; _ -> true end end, btree:list_to_tree([1,2,3])
+    ) =:= btree:list_to_tree([1,3])
+  )
+].
+
 add_test_() -> [
   ?_assert(btree:insert_bt(btree:init_bt(), 10) =:= {10, {}, {}, 1}),
   ?_assert((btree:insert_bt(btree:insert_bt(btree:init_bt(), 10),35) =:= {10, {}, {35, {}, {}, 1}, 2}))
-].
-
-
-filtration_test_() -> [
-  ?_assert(btree:filtration_tree(fun(T) -> case T of 20 -> false; _ -> true end end, btree:insert_bt(btree:insert_bt(btree:init_bt(), 10), 20)) =:= {10, {}, {}, 1})
 ].
 
 increase_test_() -> [
@@ -31,14 +62,14 @@ get_property_test_result(Property) -> proper:quickcheck(Property, [{numtests, ?P
 
 %%Prop tests
 
-prop_mull_commutativity() ->
+prop_merge_commutativity() ->
   ?FORALL(
     {L1, L2},
     {list(integer()), list(integer())},
     begin
       Tree1 = btree:list_to_tree(L1),
       Tree2 = btree:list_to_tree(L2),
-      btree:equal_bt(btree:multiply_bt(Tree1, Tree2),btree:multiply_bt(Tree2, Tree1))
+      btree:equal_bt(btree:merge(Tree1, Tree2),btree:merge(Tree2, Tree1))
     end
   ).
 
@@ -55,15 +86,13 @@ prop_add_commutativity() ->
 
 prop_associative_commutativity() ->
   ?FORALL(
-    {L1, L2, L3},
-    {list(integer()), list(integer()), list(integer())},
+    {L1, L2},
+    {list(integer()), list(integer())},
     begin
-      HashSetA = btree:list_to_tree(L1),
-      HashSetB = btree:list_to_tree(L2),
-      HashSetC = btree:list_to_tree(L3),
-      HashSetRes1 = btree:multiply_bt(btree:multiply_bt(HashSetB, HashSetC), btree:multiply_bt(HashSetA, HashSetB)),
-      HashSetRes2 = btree:multiply_bt(btree:multiply_bt(HashSetA, HashSetB), btree:multiply_bt(HashSetB, HashSetC)),
-      btree:equal_bt(HashSetRes1, HashSetRes2) == true
+      A = btree:list_to_tree(L1),
+      B = btree:list_to_tree(L2),
+      C = btree:list_to_tree([5,1,2,3,5,2,6,2,3,6,2,1,6,8]),
+      btree:equal_bt(btree:merge(C,btree:merge(A, B)),btree:merge(B,btree:merge(A, C)))
     end
   ).
 
@@ -72,7 +101,7 @@ add_commutative_test() ->
   ?assert(get_property_test_result(Property)).
 
 mull_commutative_test() ->
-  Property = prop_mull_commutativity(),
+  Property = prop_merge_commutativity(),
   ?assert(get_property_test_result(Property)).
 
 associative_commutative_test() ->
