@@ -36,9 +36,9 @@ leaf(_) -> {a, a, a, false}.
 insert_bt({}, E) -> {E, {}, {}, 1};
 
 % Вставить в дерево
-insert_bt({Key, LTree, RTree, Height}, Element) -> case (Element < Key) of
+insert_bt({Key, LTree, RTree, Height}, Element) ->
+  case (Element < Key) of
     % Ссылка установлена:
-    true -> case (isempty_bt(LTree)) of
               % Левый слот свободен, поместите сюда новый лист
               % Если что-то висит с другой стороны, высота остается прежней
               true when (Height > 1) -> {Key, {Element, {}, {}, 1}, RTree, Height};
@@ -53,24 +53,7 @@ insert_bt({Key, LTree, RTree, Height}, Element) -> case (Element < Key) of
                   % левое поддерево стало глубже, высоту нужно увеличить на 1
                   false -> {Key, {NextKey, LeftNext, RightNext, HeightNext}, RTree, Height + 1}
                 end
-            end;
-
-    % Установлен справа:
-    false -> case (isempty_bt(RTree)) of
-               true when (Height > 1) -> {Key, LTree, {Element, {}, {}, 1}, Height};
-               true -> {Key, LTree, {Element, {}, {}, 1}, Height + 1};
-
-               false -> {RightNextKey, RightRightNext,
-                 LeftRightNext, HeightRight} = insert_bt(RTree, Element),
-                 case (Height > HeightRight) of
-                   true -> {Key, LTree,
-                     {RightNextKey, RightRightNext, LeftRightNext, HeightRight}, Height};
-                   false -> {Key, LTree,
-                     {RightNextKey, RightRightNext, LeftRightNext, HeightRight}, Height + 1}
-                 end
-             end
   end.
-
 % Remove element from tree
 remove_bt({Key, LTree, RTree, Height}, Element) -> case (Element < Key) of
     true -> case (isempty_bt(LTree)) of
