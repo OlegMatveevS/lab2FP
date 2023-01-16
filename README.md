@@ -39,36 +39,22 @@ __Лабораторная работа №1__
 + __Функция добавления узла дерева__
 ``` erlang
 insert_bt({Key, LTree, RTree, Height}, Element) -> case (Element < Key) of
-    % Ссылка установлена:
-    true -> case (isempty_bt(LTree)) of
-              % Левый слот свободен, поместите сюда новый лист
-              % Если что-то висит с другой стороны, высота остается прежней
-              true when (Height > 1) -> {Key, {Element, {}, {}, 1}, RTree, Height};
-              %H равно 1 (т.е. лист), поэтому высота увеличивается на 1
+   insert_bt({Key, LTree, RTree, Height}, Element) ->
+    case (Element < Key) of
+        true -> case (isempty_bt(LTree)) of
               true -> {Key, {Element, {}, {}, 1}, RTree, Height + 1};
-
-              % левый слот не свободен, переместите элемент ниже и дождитесь высоты следующего дерева
-              false -> {NextKey, LeftNext, RightNext, HeightNext} = insert_bt(LTree, Element),
-                case (Height > HeightNext) of
-                  % Если на другой стороне есть более длинная ветвь, H остается нетронутой
-                  true -> {Key, {NextKey, LeftNext, RightNext, HeightNext}, RTree, Height};
-                  % левое поддерево стало глубже, высоту нужно увеличить на 1
-                  false -> {Key, {NextKey, LeftNext, RightNext, HeightNext}, RTree, Height + 1}
+              false -> Node = insert_bt(LTree, Element),
+                case (Height > Node) of
+                  true -> {Key, Node, RTree, Height};
+                  false -> {Key, Node, RTree, Height + 1}
                 end
             end;
-
-    % Установлен справа:
     false -> case (isempty_bt(RTree)) of
-               true when (Height > 1) -> {Key, LTree, {Element, {}, {}, 1}, Height};
                true -> {Key, LTree, {Element, {}, {}, 1}, Height + 1};
-
-               false -> {RightNextKey, RightRightNext,
-                 LeftRightNext, HeightRight} = insert_bt(RTree, Element),
-                 case (Height > HeightRight) of
-                   true -> {Key, LTree,
-                     {RightNextKey, RightRightNext, LeftRightNext, HeightRight}, Height};
-                   false -> {Key, LTree,
-                     {RightNextKey, RightRightNext, LeftRightNext, HeightRight}, Height + 1}
+               false -> Node = insert_bt(RTree, Element),
+                 case (Height > Node) of
+                   true -> {Key, LTree, Node, Height};
+                   false -> {Key, LTree, Node, Height + 1}
                  end
              end
   end.
@@ -79,22 +65,19 @@ insert_bt({Key, LTree, RTree, Height}, Element) -> case (Element < Key) of
 remove_bt({Key, LTree, RTree, Height}, Element) -> case (Element < Key) of
     true -> case (isempty_bt(LTree)) of
               true -> {Key, LTree, RTree, Height};
-              false -> {NextKey, LeftNext, RightNext, HeightNext} = remove_bt(LTree, Element),
-                case (Height > HeightNext) of
-                  true -> {Key, {NextKey, LeftNext, RightNext, HeightNext}, RTree, Height};
-                  false -> {Key, {NextKey, LeftNext, RightNext, HeightNext}, RTree, Height - 1}
+              false -> Node = remove_bt(LTree, Element),
+                case (Height > Node) of
+                  true -> {Key, Node, RTree, Height};
+                  false -> {Key, Node, RTree, Height + 1}
                 end
             end;
 
     false -> case (isempty_bt(RTree)) of
                true -> {Key, LTree, RTree, Height};
-               false -> {RightNextKey, RightRightNext,
-                 LeftRightNext, HeightRight} = remove_bt(RTree, Element),
-                 case (Height > HeightRight) of
-                   true -> {Key, LTree,
-                     {RightNextKey, RightRightNext, LeftRightNext, HeightRight}, Height};
-                   false -> {Key, LTree,
-                     {RightNextKey, RightRightNext, LeftRightNext, HeightRight}, Height - 1}
+               false -> Node = remove_bt(RTree, Element),
+                 case (Height > Node) of
+                   true -> {Key, LTree, Node, Height};
+                   false -> {Key, LTree, Node, Height + 1}
                  end
              end
   end.
