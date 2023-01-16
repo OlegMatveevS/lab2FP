@@ -218,8 +218,10 @@ associative_commutative_test() ->
 
 
   ```
-  
-  
+  ![image](https://user-images.githubusercontent.com/55399599/212625801-30c989a4-1dec-41dc-95e8-cc2ef36a9f28.png)
+
+
+
   
  
 
