@@ -38,21 +38,22 @@ insert_bt({}, E) -> {E, {}, {}, 1};
 % Вставить в дерево
 insert_bt({Key, LTree, RTree, Height}, Element) ->
   case (Element < Key) of
-    % Ссылка установлена:
-              % Левый слот свободен, поместите сюда новый лист
-              % Если что-то висит с другой стороны, высота остается прежней
-              true when (Height > 1) -> {Key, {Element, {}, {}, 1}, RTree, Height};
-              %H равно 1 (т.е. лист), поэтому высота увеличивается на 1
+    true -> case (isempty_bt(LTree)) of
               true -> {Key, {Element, {}, {}, 1}, RTree, Height + 1};
-
-              % левый слот не свободен, переместите элемент ниже и дождитесь высоты следующего дерева
-              false -> {NextKey, LeftNext, RightNext, HeightNext} = insert_bt(LTree, Element),
-                case (Height > HeightNext) of
-                  % Если на другой стороне есть более длинная ветвь, H остается нетронутой
-                  true -> {Key, {NextKey, LeftNext, RightNext, HeightNext}, RTree, Height};
-                  % левое поддерево стало глубже, высоту нужно увеличить на 1
-                  false -> {Key, {NextKey, LeftNext, RightNext, HeightNext}, RTree, Height + 1}
+              false -> Node = insert_bt(LTree, Element),
+                case (Height > Node) of
+                  true -> {Key, Node, RTree, Height};
+                  false -> {Key, Node, RTree, Height + 1}
                 end
+            end;
+    false -> case (isempty_bt(RTree)) of
+               true -> {Key, LTree, {Element, {}, {}, 1}, Height + 1};
+               false -> Node = insert_bt(RTree, Element),
+                 case (Height > Node) of
+                   true -> {Key, LTree, Node, Height};
+                   false -> {Key, LTree, Node, Height + 1}
+                 end
+             end
   end.
 % Remove element from tree
 remove_bt({Key, LTree, RTree, Height}, Element) -> case (Element < Key) of
