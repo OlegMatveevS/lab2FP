@@ -38,9 +38,7 @@ __Лабораторная работа №1__
 
 + __Функция добавления узла дерева__
 ``` erlang
-insert_bt({Key, LTree, RTree, Height}, Element) -> case (Element < Key) of
-   insert_bt({Key, LTree, RTree, Height}, Element) ->
-    case (Element < Key) of
+   insert_bt({Key, LTree, RTree, Height}, Element) -> case (Element < Key) of
         true -> case (isempty_bt(LTree)) of
               true -> {Key, {Element, {}, {}, 1}, RTree, Height + 1};
               false -> Node = insert_bt(LTree, Element),
