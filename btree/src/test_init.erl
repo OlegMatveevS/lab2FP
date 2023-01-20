@@ -30,11 +30,8 @@ map_test_() -> [
   )
 ].
 
-merge_test_() -> [
-  ?_assert(
-    btree:merge(btree:list_to_tree([2,4]),btree:list_to_tree([2,4])) =:= btree:list_to_tree([4,8])
-  )
-].
+
+
 
 filter_test_() -> [
   ?_assert(

@@ -1,6 +1,6 @@
 -module(btree).
 
--export([init_bt/0, is_bt/1, insert_bt/2, isempty_bt/1, equal_bt/2, increase_bt/1, add_tree/2, list_to_tree/1, sum_bt/1, merge_list/2, foldl/3, foldr/3, btree_map/2, map/2, filter/2, btree_filter/2, merge/2, remove_bt/2]).
+-export([init_bt/0, is_bt/1, insert_bt/2, isempty_bt/1, increase_bt/1, add_tree/2, list_to_tree/1, sum_bt/1, foldl/3, foldr/3, btree_map/2, map/2, filter/2, btree_filter/2, remove_bt/2, join_tree/2]).
 
 
 init_bt() -> {}.
@@ -56,27 +56,32 @@ insert_bt({Key, LTree, RTree, Height}, Element) ->
              end
   end.
 % Remove element from tree
-remove_bt({Key, LTree, RTree, Height}, Element) -> case (Element < Key) of
-    true -> case (isempty_bt(LTree)) of
-              true -> {Key, LTree, RTree, Height};
-              false -> {NextKey, LeftNext, RightNext, HeightNext} = remove_bt(LTree, Element),
-                case (Height > HeightNext) of
-                  true -> {Key, {NextKey, LeftNext, RightNext, HeightNext}, RTree, Height};
-                  false -> {Key, {NextKey, LeftNext, RightNext, HeightNext}, RTree, Height - 1}
-                end
-            end;
+remove_bt({Key, LTree, RTree, Height}, Element)
+  -> case (Element < Key) of
+       true -> case (isempty_bt(LTree)) of
+                 true -> {Key, LTree, RTree, Height};
+                 false ->
+                   {NextKey, LeftNext, RightNext, HeightNext} = remove_bt(LTree, Element),
+                   case (Height > HeightNext) of
+                     true ->
+                       {Key, {NextKey, LeftNext, RightNext, HeightNext}, RTree, Height};
+                     false ->
+                       {Key, {NextKey, LeftNext, RightNext, HeightNext}, RTree, Height - 1}
+                   end
+               end;
 
-    false -> case (isempty_bt(RTree)) of
-               true -> {Key, LTree, RTree, Height};
-               false -> {RightNextKey, RightRightNext, LeftRightNext, HeightRight} = remove_bt(RTree, Element),
-                 case (Height > HeightRight) of
-                   true -> {Key, LTree,
-                     {RightNextKey, RightRightNext, LeftRightNext, HeightRight}, Height};
-                   false -> {Key, LTree,
-                     {RightNextKey, RightRightNext, LeftRightNext, HeightRight}, Height - 1}
-                 end
-             end
-  end.
+       false -> case (isempty_bt(RTree)) of
+                  true -> {Key, LTree, RTree, Height};
+                  false ->
+                    {RightNextKey, RightRightNext, LeftRightNext, HeightRight} = remove_bt(RTree, Element),
+                    case (Height > HeightRight) of
+                      true -> {Key, LTree,
+                        {RightNextKey, RightRightNext, LeftRightNext, HeightRight}, Height};
+                      false -> {Key, LTree,
+                        {RightNextKey, RightRightNext, LeftRightNext, HeightRight}, Height - 1}
+                    end
+                end
+     end.
 
 
 foldl(_, Acc, {}) -> Acc;
@@ -103,6 +108,8 @@ map(Fun, {Key, L, R, _H}, {Key2, L2, R2, H2}) ->
   Node3 = insert_bt(Node2, Fun(Key)),
   map(Fun, R, Node3).
 
+
+
 btree_filter(Fun, {W, L, R, H}) -> filter(Fun, {W, L, R, H}).
 filter(Fun, {W, L, R, _H}) ->
   Node3 = case Fun(W) of
@@ -120,17 +127,14 @@ filter(Fun, {Key, L, R, _H}, {Key2, L2, R2, H2}) ->
           end,
   filter(Fun, R, Node3).
 
-merge({}, {}) -> {};
-merge({}, Tree) -> Tree;
-merge(Tree, {}) -> Tree;
-merge({Key1, L1, R1, H1}, {Key2, L2, R2, H2}) -> lists:foldl(fun(X, Y) -> insert_bt(Y, X) end, {},
-  merge_list({Key1, L1, R1, H1}, {Key2, L2, R2, H2})).
-
-merge_list({}, {}) -> [];
-merge_list(_, {}) -> [];
-merge_list({}, _) -> [];
-merge_list({Key1, L1, R1, _H1}, {Key2, L2, R2, _H2}) ->
-  [Key1 + Key2] ++ merge_list(L1, L2) ++ merge_list(R1, R2).
+join_tree({}, {}) -> {};
+join_tree({}, Tree) -> Tree;
+join_tree(Tree, {}) -> Tree;
+join_tree(MasterTree, MasterTree2) ->
+  ListFirst = tree_to_list(MasterTree),
+  ListSecond = tree_to_list(MasterTree2),
+  List = lists:sort(lists:append(ListFirst, ListSecond)),
+  list_to_tree(List).
 
 add_tree({}, {}) -> {};
 add_tree({}, Tree) -> Tree;
@@ -155,14 +159,6 @@ increase_bt(BT) ->
 % Проверяет наличие пустого дерева
 isempty_bt({}) -> true;
 isempty_bt(_) -> false.
-
-equal_bt({}, {}) -> true;
-equal_bt({}, _) -> false;
-equal_bt(_, {}) -> false;
-equal_bt({Key, _Left, _Right, _Height}, {Key2, _Left2, _Right2, _Height2})
-  when Key /= Key2 -> false;
-equal_bt({_Key, Left, Right, _Height}, {_Key2, Left2, Right2, _Height2}) ->
-  equal_bt(Left, Left2) and equal_bt(Right, Right2).
 
 my_max(A, B) when A > B -> A;
 my_max(_A, B) -> B.

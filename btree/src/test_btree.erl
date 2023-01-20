@@ -10,49 +10,53 @@
 get_property_test_result(Property) -> proper:quickcheck(Property, [{numtests, ?PROPERTY_TESTS_AMOUNT}]).
 
 %%Prop tests
+prop_associative() ->
+  ?FORALL({LeftList, MiddleList, RightList},
+    {list(integer()), list(integer()), list(integer())},
+    begin
+      Left = btree:list_to_tree(LeftList),
+      Middle = btree:list_to_tree(MiddleList),
+      Right = btree:list_to_tree(RightList),
+      btree:join_tree(btree:join_tree(Middle, Left),Right) == btree:join_tree(btree:join_tree(Left, Right),Middle)
+    end
+  ).
 
-prop_merge_commutativity() ->
+prop_add_neutral_element() ->
+  ?FORALL(
+    {L1},
+    {list(integer())},
+    begin
+      TreeEmpty = btree:list_to_tree([]),
+      Tree1 = btree:list_to_tree(L1),
+      btree:add_tree(Tree1, TreeEmpty) == btree:add_tree(TreeEmpty, Tree1)
+end
+  ).
+
+prop_addition_tree() ->
   ?FORALL(
     {L1, L2},
     {list(integer()), list(integer())},
     begin
       Tree1 = btree:list_to_tree(L1),
       Tree2 = btree:list_to_tree(L2),
-      btree:equal_bt(btree:merge(Tree1, Tree2),btree:merge(Tree2, Tree1))
+      Result = btree:join_tree(Tree1, Tree2),
+      InverseResult = btree:join_tree(Tree2, Tree1),
+      Result == InverseResult
     end
   ).
 
-prop_add_commutativity() ->
-  ?FORALL(
-    {L1, L2},
-    {list(integer()), list(integer())},
-    begin
-      Tree1 = btree:list_to_tree(L1),
-      Tree2 = btree:list_to_tree(L2),
-      btree:sum_bt(btree:add_tree(Tree1, Tree2)) =:= btree:sum_bt(btree:add_tree(Tree2, Tree1))
-    end
-  ).
 
-prop_associative_commutativity() ->
-  ?FORALL(
-    {L1, L2},
-    {list(integer()), list(integer())},
-    begin
-      A = btree:list_to_tree(L1),
-      B = btree:list_to_tree(L2),
-      C = btree:list_to_tree([5,1,2,3,5,2,6,2,3,6,2,1,6,8]),
-      btree:equal_bt(btree:merge(C,btree:merge(A, B)),btree:merge(B,btree:merge(A, C)))
-    end
-  ).
-
-add_commutative_test() ->
-  Property = prop_add_commutativity(),
+add_neutral_test() ->
+  Property = prop_add_neutral_element(),
   ?assert(get_property_test_result(Property)).
 
-mull_commutative_test() ->
-  Property = prop_merge_commutativity(),
+associative_test() ->
+  Property = prop_associative(),
   ?assert(get_property_test_result(Property)).
 
-associative_commutative_test() ->
-  Property = prop_associative_commutativity(),
+addition_test() ->
+  Property = prop_addition_tree(),
   ?assert(get_property_test_result(Property)).
+
+
+
